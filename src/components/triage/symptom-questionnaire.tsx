@@ -30,38 +30,34 @@ type SymptomQuestionnaireProps = {
 
 type QuestionnaireType = 'PHQ-9' | 'GAD-7';
 
+const getInitialValues = (type: QuestionnaireType) => {
+  const questions = type === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
+  const initialData = {};
+  questions.forEach(q => {
+    initialData[q.id] = 0;
+  });
+  return {
+    questionnaireType: type,
+    questionnaireData: initialData,
+    userDetails: ''
+  };
+};
+
+
 export default function SymptomQuestionnaire({
   onSubmit,
   isLoading,
 }: SymptomQuestionnaireProps) {
   const [questionnaireType, setQuestionnaireType] = useState<QuestionnaireType>('PHQ-9');
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
   const questions = useMemo(() => 
     questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS,
     [questionnaireType]
   );
   
-  const defaultValues = useMemo(() => {
-    const defaults = {
-      questionnaireType,
-      questionnaireData: {},
-      userDetails: ''
-    };
-    const currentQuestions = questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
-    currentQuestions.forEach(q => {
-      defaults.questionnaireData[q.id] = 0;
-    });
-    return defaults;
-  }, [questionnaireType]);
-  
   const form = useForm<z.infer<typeof symptomQuestionnaireSchema>>({
     resolver: zodResolver(symptomQuestionnaireSchema),
-    defaultValues,
+    defaultValues: getInitialValues(questionnaireType),
   });
 
   const handleFormSubmit = (values: z.infer<typeof symptomQuestionnaireSchema>) => {
@@ -81,48 +77,8 @@ export default function SymptomQuestionnaire({
 
   const handleTypeChange = (type: QuestionnaireType) => {
     setQuestionnaireType(type);
-    const newQuestions = type === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
-    const newQuestionnaireData = {};
-    newQuestions.forEach(q => {
-      newQuestionnaireData[q.id] = 0;
-    });
-    form.reset({
-      questionnaireType: type,
-      questionnaireData: newQuestionnaireData,
-      userDetails: form.getValues('userDetails')
-    });
+    form.reset(getInitialValues(type));
   };
-
-  if (!isClient) {
-    return (
-        <Card className="max-w-3xl mx-auto">
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">Symptom Triage</CardTitle>
-                <CardDescription>
-                    This tool helps to understand your current well-being. Please answer the questions based on how you have been feeling over the last 2 weeks.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    <div className="h-10 w-48 rounded-md bg-muted animate-pulse" />
-                    <div className="space-y-6">
-                        {[...Array(9)].map((_, i) => (
-                            <div key={i} className="p-4 rounded-lg border space-y-3">
-                                <div className="h-5 w-3/4 rounded-md bg-muted animate-pulse" />
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-                                    <div className="h-6 w-24 rounded-md bg-muted animate-pulse" />
-                                    <div className="h-6 w-24 rounded-md bg-muted animate-pulse" />
-                                    <div className="h-6 w-24 rounded-md bg-muted animate-pulse" />
-                                    <div className="h-6 w-32 rounded-md bg-muted animate-pulse" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    );
-  }
   
   return (
     <Card className="max-w-3xl mx-auto">
