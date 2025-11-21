@@ -35,7 +35,7 @@ const getInitialData = (questions: typeof PHQ9_QUESTIONS | typeof GAD7_QUESTIONS
   return questions.reduce((acc, q) => {
     acc[q.id] = 0;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 };
 
 export default function SymptomQuestionnaire({
@@ -83,6 +83,7 @@ export default function SymptomQuestionnaire({
 
   const handleTypeChange = (type: QuestionnaireType) => {
     setQuestionnaireType(type);
+    form.setValue('questionnaireType', type);
   };
   
   return (
@@ -136,9 +137,9 @@ export default function SymptomQuestionnaire({
                             {QUESTIONNAIRE_ANSWERS.map((answer) => (
                               <FormItem key={answer.value} className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value={String(answer.value)} />
+                                  <RadioGroupItem value={String(answer.value)} id={`${field.name}-${answer.value}`} />
                                 </FormControl>
-                                <FormLabel className="font-normal">{answer.text}</FormLabel>
+                                <FormLabel className="font-normal" htmlFor={`${field.name}-${answer.value}`}>{answer.text}</FormLabel>
                               </FormItem>
                             ))}
                           </RadioGroup>
