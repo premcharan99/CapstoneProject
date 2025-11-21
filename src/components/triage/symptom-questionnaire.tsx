@@ -64,6 +64,21 @@ export default function SymptomQuestionnaire({
     defaultValues,
   });
 
+  const handleFormSubmit = (values: z.infer<typeof symptomQuestionnaireSchema>) => {
+    const questionsList = values.questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
+    
+    const transformedData = {
+      ...values,
+      questionnaireData: Object.entries(values.questionnaireData).reduce((acc, [key, value]) => {
+        const questionText = questionsList.find(q => q.id === key)?.text || key;
+        acc[questionText] = value;
+        return acc;
+      }, {}),
+    };
+    
+    onSubmit(transformedData);
+  };
+
   const handleTypeChange = (type: QuestionnaireType) => {
     setQuestionnaireType(type);
     const newQuestions = type === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
@@ -119,7 +134,7 @@ export default function SymptomQuestionnaire({
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
                 name="questionnaireType"

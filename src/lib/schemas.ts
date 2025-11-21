@@ -36,7 +36,6 @@ const gad7Schema = z.object(
   }, {} as Record<string, z.ZodType<number, z.ZodTypeDef>>)
 );
 
-
 export const symptomQuestionnaireSchema = z.discriminatedUnion("questionnaireType", [
     z.object({
         questionnaireType: z.literal("PHQ-9"),
