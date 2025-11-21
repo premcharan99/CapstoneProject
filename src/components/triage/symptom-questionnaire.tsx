@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -35,6 +35,11 @@ export default function SymptomQuestionnaire({
   isLoading,
 }: SymptomQuestionnaireProps) {
   const [questionnaireType, setQuestionnaireType] = useState<QuestionnaireType>('PHQ-9');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   const questions = useMemo(() => 
     questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS,
@@ -71,6 +76,10 @@ export default function SymptomQuestionnaire({
     });
     form.reset(newDefaults);
   };
+
+  if (!isClient) {
+    return null;
+  }
   
   return (
     <Card className="max-w-3xl mx-auto">
