@@ -22,26 +22,34 @@ export const businessCriteriaSchema = z.object({
   clinicalInvolvement: z.string().min(1, "Clinical involvement description is required."),
 });
 
-const questionsSchema = (questions: {id: string}[]) => {
-  const schemaShape = questions.reduce((acc, q) => {
+const phq9Schema = z.object(
+  PHQ9_QUESTIONS.reduce((acc, q) => {
     acc[q.id] = z.coerce.number().min(0).max(3);
     return acc;
-  }, {} as Record<string, z.ZodType<number, z.ZodTypeDef>>);
-  return z.object(schemaShape);
-}
+  }, {} as Record<string, z.ZodType<number, z.ZodTypeDef>>)
+);
 
-export const symptomQuestionnaireSchema = z.object({
-  questionnaireType: z.enum(['PHQ-9', 'GAD-7']),
-  questionnaireData: z.any(), // Will be refined in component
-  userDetails: z.string().optional(),
-}).refine(data => {
-  const questions = data.questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
-  const schema = questionsSchema(questions);
-  return schema.safeParse(data.questionnaireData).success;
-}, {
-  message: "Invalid questionnaire data for the selected type.",
-  path: ['questionnaireData'],
-});
+const gad7Schema = z.object(
+  GAD7_QUESTIONS.reduce((acc, q) => {
+    acc[q.id] = z.coerce.number().min(0).max(3);
+    return acc;
+  }, {} as Record<string, z.ZodType<number, z.ZodTypeDef>>)
+);
+
+
+export const symptomQuestionnaireSchema = z.discriminatedUnion("questionnaireType", [
+    z.object({
+        questionnaireType: z.literal("PHQ-9"),
+        questionnaireData: phq9Schema,
+        userDetails: z.string().optional(),
+    }),
+    z.object({
+        questionnaireType: z.literal("GAD-7"),
+        questionnaireData: gad7Schema,
+        userDetails: z.string().optional(),
+    }),
+]);
+
 
 export type BusinessCriteria = z.infer<typeof businessCriteriaSchema>;
 export type SymptomQuestionnaire = z.infer<typeof symptomQuestionnaireSchema>;
