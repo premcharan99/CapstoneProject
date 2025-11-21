@@ -37,7 +37,7 @@ const triagePrompt = ai.definePrompt({
   output: {schema: AnalyzeTriageOutputSchema},
   prompt: `You are an AI assistant designed to analyze mental health questionnaire data and provide personalized recommendations.
 
-  Based on the provided questionnaire data ({{{questionnaireType}}} - {{{JSON.stringify(questionnaireData)}}}), determine the appropriate triage level (Mild, Moderate, Severe).  Consider the user details if provided ({userDetails}}).
+  Based on the provided questionnaire data ({{{questionnaireType}}} - {{{JSON.stringify questionnaireData}}}), determine the appropriate triage level (Mild, Moderate, Severe).  Consider the user details if provided ({{{userDetails}}}).
 
   Provide personalized self-help strategies, relevant product/service suggestions, and essential crisis resources.
 
