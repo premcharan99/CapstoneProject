@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { z } from "zod";
 import SymptomQuestionnaire from "@/components/triage/symptom-questionnaire";
 import TriageResults from "@/components/triage/triage-results";
@@ -12,7 +12,12 @@ import { useToast } from "@/hooks/use-toast";
 export default function TriagePage() {
   const [result, setResult] = useState<AnalyzeTriageOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleFormSubmit = async (data: z.infer<typeof symptomQuestionnaireSchema>) => {
     setIsLoading(true);
@@ -44,7 +49,7 @@ export default function TriagePage() {
       {result ? (
         <TriageResults data={result} onReset={handleReset} />
       ) : (
-        <SymptomQuestionnaire onSubmit={handleFormSubmit} isLoading={isLoading} />
+        isClient && <SymptomQuestionnaire onSubmit={handleFormSubmit} isLoading={isLoading} />
       )}
     </div>
   );
