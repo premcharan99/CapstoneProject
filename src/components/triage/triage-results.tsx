@@ -110,7 +110,7 @@ export default function TriageResults({ data, onReset }: TriageResultsProps) {
           <ShieldAlert className="h-4 w-4" />
           <AlertTitle>Crisis Support</AlertTitle>
           <AlertDescription>
-            If you are in a crisis or any other person may be in danger, don't use this site. These resources can provide you with immediate help.
+            If you are in a crisis or any other person may be in danger, do not use this site. These resources can provide you with immediate help.
             <ul className="list-disc pl-5 mt-2">
               <li><strong>National Suicide Prevention Lifeline:</strong> 988</li>
               <li><strong>Crisis Text Line:</strong> Text HOME to 741741</li>
