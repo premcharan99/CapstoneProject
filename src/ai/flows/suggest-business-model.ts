@@ -37,9 +37,13 @@ const SuggestBusinessModelOutputSchema = z.object({
   businessModel: z.string().describe('The suggested business model.'),
   confidenceScore: z.number().describe('A score indicating the confidence level in the suggested business model (0-1).'),
   reasons: z.string().describe('The reasons for suggesting the business model.'),
-  mvpFeatures: z.string().describe('Potential MVP features for the business.'),
-  gtmChannels: z.string().describe('Potential Go-To-Market channels for the business.'),
-  monetizationForecasts: z.string().describe('Monetization forecasts for the business.'),
+  mvpFeatures: z.array(z.string()).describe('A list of 3-5 potential MVP features for the business.'),
+  gtmChannels: z
+    .array(z.object({ channel: z.string(), effectiveness: z.number().min(1).max(10) }))
+    .describe('A list of potential Go-To-Market channels and their effectiveness score (1-10).'),
+  monetizationForecasts: z
+    .array(z.object({ year: z.number(), revenue: z.number() }))
+    .describe('Monetization forecasts (estimated annual revenue) for the next 5 years.'),
 });
 export type SuggestBusinessModelOutput = z.infer<typeof SuggestBusinessModelOutputSchema>;
 
@@ -51,7 +55,7 @@ const prompt = ai.definePrompt({
   name: 'suggestBusinessModelPrompt',
   input: {schema: SuggestBusinessModelInputSchema},
   output: {schema: SuggestBusinessModelOutputSchema},
-  prompt: `You are an AI assistant that provides business model recommendations based on user-provided criteria. Analyze the following criteria and suggest the most suitable business model. Provide a confidence score (0-1), reasons for the suggestion, potential MVP features, Go-To-Market channels, and monetization forecasts.
+  prompt: `You are an AI assistant that provides business model recommendations based on user-provided criteria. Analyze the following criteria and suggest the most suitable business model. Provide a confidence score (0-1), reasons for the suggestion, potential MVP features, Go-To-Market channels with effectiveness scores, and 5-year monetization forecasts.
 
 Service Type: {{{serviceType}}}
 Ownership: {{{ownership}}}

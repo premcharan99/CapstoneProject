@@ -9,12 +9,6 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
   FileDown,
@@ -24,6 +18,8 @@ import {
   Target,
   DollarSign,
   Info,
+  TrendingUp,
+  BarChart,
 } from "lucide-react";
 import {
   ChartContainer,
@@ -31,7 +27,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/chart";
-import { Label, Pie, PieChart, Cell } from "recharts";
+import { Label, Pie, PieChart, Cell, Bar, XAxis, YAxis, CartesianGrid, Area, AreaChart, Line, ComposedChart } from "recharts";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 type BusinessModelDashboardProps = {
@@ -39,9 +35,23 @@ type BusinessModelDashboardProps = {
   onReset: () => void;
 };
 
-const chartConfig = {
+const confidenceChartConfig = {
   confidence: {
     label: "Confidence",
+  },
+} satisfies ChartConfig;
+
+const gtmChartConfig = {
+  effectiveness: {
+    label: "Effectiveness (1-10)",
+    color: "hsl(var(--accent))",
+  },
+} satisfies ChartConfig;
+
+const forecastChartConfig = {
+  revenue: {
+    label: "Revenue ($)",
+    color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig;
 
@@ -67,7 +77,7 @@ export default function BusinessModelDashboard({
   };
 
   const confidencePercentage = Math.round(data.confidenceScore * 100);
-  const chartData = [
+  const confidenceChartData = [
     { name: 'Confidence', value: confidencePercentage, fill: 'hsl(var(--primary))' },
     { name: 'Remaining', value: 100 - confidencePercentage, fill: 'hsl(var(--muted))' },
   ];
@@ -86,7 +96,7 @@ export default function BusinessModelDashboard({
               </div>
               <div className="w-32 h-32">
                 <ChartContainer
-                  config={chartConfig}
+                  config={confidenceChartConfig}
                   className="mx-auto aspect-square w-full"
                 >
                   <PieChart>
@@ -95,7 +105,7 @@ export default function BusinessModelDashboard({
                       content={<ChartTooltipContent hideLabel hideIndicator />}
                     />
                     <Pie
-                      data={chartData}
+                      data={confidenceChartData}
                       dataKey="value"
                       nameKey="name"
                       innerRadius={38}
@@ -146,35 +156,62 @@ export default function BusinessModelDashboard({
               <AlertTitle>Justification</AlertTitle>
               <AlertDescription>{data.reasons}</AlertDescription>
             </Alert>
-            <Accordion type="single" collapsible defaultValue="item-1">
-              <AccordionItem value="item-1" className="accordion-item">
-                <AccordionTrigger className="text-xl font-headline">
-                  <Lightbulb className="mr-2 text-accent" />
-                  MVP Features
-                </AccordionTrigger>
-                <AccordionContent className="accordion-content prose prose-sm max-w-none text-muted-foreground">
-                  <p>{data.mvpFeatures}</p>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2" className="accordion-item">
-                <AccordionTrigger className="text-xl font-headline">
-                  <Target className="mr-2 text-accent" />
-                  Go-To-Market Channels
-                </AccordionTrigger>
-                <AccordionContent className="accordion-content prose prose-sm max-w-none text-muted-foreground">
-                  <p>{data.gtmChannels}</p>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3" className="accordion-item">
-                <AccordionTrigger className="text-xl font-headline">
-                  <DollarSign className="mr-2 text-accent" />
-                  Monetization Forecasts
-                </AccordionTrigger>
-                <AccordionContent className="accordion-content prose prose-sm max-w-none text-muted-foreground">
-                  <p>{data.monetizationForecasts}</p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+
+            <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-xl font-headline"><Target className="mr-2 text-accent" /> GTM Channels</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={gtmChartConfig} className="w-full h-64">
+                            <ComposedChart layout="vertical" data={data.gtmChannels} margin={{left: 20}}>
+                                <XAxis type="number" hide />
+                                <YAxis dataKey="channel" type="category" tickLine={false} axisLine={false} tick={{fill: 'hsl(var(--foreground))', fontSize: 12}} width={120} />
+                                <ChartTooltip content={<ChartTooltipContent />} />
+                                <Bar dataKey="effectiveness" radius={4} fill="var(--color-effectiveness)" />
+                            </ComposedChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center text-xl font-headline"><TrendingUp className="mr-2 text-accent" /> Monetization Forecast</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <ChartContainer config={forecastChartConfig} className="w-full h-64">
+                            <AreaChart data={data.monetizationForecasts} margin={{ left: 12, right: 12 }}>
+                                <CartesianGrid vertical={false} />
+                                <XAxis dataKey="year" tickLine={false} axisLine={false} tickMargin={8} tick={{fill: 'hsl(var(--foreground))'}} />
+                                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                                <Area
+                                    dataKey="revenue"
+                                    type="natural"
+                                    fill="var(--color-revenue)"
+                                    fillOpacity={0.4}
+                                    stroke="var(--color-revenue)"
+                                />
+                            </AreaChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center text-xl font-headline">
+                    <Lightbulb className="mr-2 text-accent" />
+                    MVP Features
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <ul className="prose prose-sm max-w-none text-muted-foreground list-disc pl-5 space-y-2">
+                        {data.mvpFeatures.map((feature, index) => (
+                            <li key={index}>{feature}</li>
+                        ))}
+                    </ul>
+                </CardContent>
+            </Card>
+
             <p className="text-xs text-muted-foreground font-code mt-4 no-print">
                 <span className="font-bold">Disclaimer:</span> The recommendations provided are generated by an AI model and should be used for informational purposes only. Always conduct thorough market research and consult with business professionals before making any decisions.
             </p>
