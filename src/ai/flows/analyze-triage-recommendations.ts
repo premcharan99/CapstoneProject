@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -37,22 +38,24 @@ const triagePrompt = ai.definePrompt({
   output: {schema: AnalyzeTriageOutputSchema},
   prompt: `You are an AI assistant designed to analyze mental health questionnaire data and provide personalized recommendations.
 
-  Based on the provided questionnaire data ({{{questionnaireType}}} - {{{JSON.stringify questionnaireData}}}), determine the appropriate triage level (Mild, Moderate, Severe).  Consider the user details if provided ({{{userDetails}}}).
+The user has completed the {{{questionnaireType}}} questionnaire. The results are as follows, with each question's answer scored from 0 (Not at all) to 3 (Nearly every day):
+{{{JSON.stringify questionnaireData}}}
 
-  Provide personalized self-help strategies, relevant product/service suggestions, and essential crisis resources.
+Analyze the scores to determine a total score.
+- For PHQ-9, the total score ranges from 0 to 27.
+- For GAD-7, the total score ranges from 0 to 21.
 
-  Return the results in JSON format.
-  Explain your reasoning for the triage level determination.
+Based on the total score, determine the triage level:
+- PHQ-9: 0-4 (None-minimal), 5-9 (Mild), 10-14 (Moderate), 15-19 (Moderately severe), 20-27 (Severe).
+- GAD-7: 0-4 (Minimal), 5-9 (Mild), 10-14 (Moderate), 15-21 (Severe).
 
-  The output should be in the following format:
-  {
-    "triageLevel": "[Triage Level]",
-    "selfHelpRecommendations": ["Recommendation 1", "Recommendation 2"],
-    "productServiceRecommendations": ["Product/Service 1", "Product/Service 2"],
-    "crisisResources": ["Resource 1", "Resource 2"],
-    "explanation": "[Explanation of the triage level determination]"
-  }
-  `,
+Group "None-minimal" and "Minimal" into a "Mild" triage level. Group "Moderately severe" into "Severe".
+
+Provide an explanation for the triage level based on the score.
+Then, provide personalized self-help strategies, relevant product/service suggestions, and essential crisis resources. If the user provided personal details ({{{userDetails}}}), use them to tailor the recommendations.
+
+IMPORTANT: If any answer indicates self-harm (for PHQ-9, this is the question about 'thoughts that you would be better off dead'), the triage level must be classified as 'Severe' regardless of the total score, and you must heavily prioritize crisis resources.
+`,
 });
 
 const analyzeTriageFlow = ai.defineFlow(
@@ -62,7 +65,7 @@ const analyzeTriageFlow = ai.defineFlow(
     outputSchema: AnalyzeTriageOutputSchema,
   },
   async input => {
-    const {output} = await triagePrompt(input);
+    const {output} = await prompt(input);
     return output!;
   }
 );

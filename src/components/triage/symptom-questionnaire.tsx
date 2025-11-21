@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,17 +31,11 @@ type SymptomQuestionnaireProps = {
 
 type QuestionnaireType = 'PHQ-9' | 'GAD-7';
 
-const getInitialValues = (type: QuestionnaireType) => {
-  const questions = type === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
-  const initialData = {};
-  questions.forEach(q => {
-    initialData[q.id] = 0;
-  });
-  return {
-    questionnaireType: type,
-    questionnaireData: initialData,
-    userDetails: ''
-  };
+const getInitialData = (questions: typeof PHQ9_QUESTIONS | typeof GAD7_QUESTIONS) => {
+  return questions.reduce((acc, q) => {
+    acc[q.id] = 0;
+    return acc;
+  }, {});
 };
 
 export default function SymptomQuestionnaire({
@@ -48,12 +43,7 @@ export default function SymptomQuestionnaire({
   isLoading,
 }: SymptomQuestionnaireProps) {
   const [questionnaireType, setQuestionnaireType] = useState<QuestionnaireType>('PHQ-9');
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
+  
   const questions = useMemo(() => 
     questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS,
     [questionnaireType]
@@ -61,12 +51,20 @@ export default function SymptomQuestionnaire({
   
   const form = useForm<z.infer<typeof symptomQuestionnaireSchema>>({
     resolver: zodResolver(symptomQuestionnaireSchema),
-    defaultValues: getInitialValues(questionnaireType),
+    defaultValues: {
+      questionnaireType: 'PHQ-9',
+      questionnaireData: getInitialData(PHQ9_QUESTIONS),
+      userDetails: ''
+    },
   });
 
   useEffect(() => {
-    form.reset(getInitialValues(questionnaireType));
-  }, [questionnaireType, form]);
+    form.reset({
+      questionnaireType: questionnaireType,
+      questionnaireData: getInitialData(questions),
+      userDetails: ''
+    });
+  }, [questionnaireType, questions, form]);
 
   const handleFormSubmit = (values: z.infer<typeof symptomQuestionnaireSchema>) => {
     const questionsList = values.questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
@@ -86,10 +84,6 @@ export default function SymptomQuestionnaire({
   const handleTypeChange = (type: QuestionnaireType) => {
     setQuestionnaireType(type);
   };
-
-  if (!isClient) {
-    return null; // Or a loading spinner
-  }
   
   return (
     <Card className="max-w-3xl mx-auto">
@@ -135,7 +129,7 @@ export default function SymptomQuestionnaire({
                         <FormLabel className="text-base">{index + 1}. {question.text}</FormLabel>
                         <FormControl>
                           <RadioGroup
-                            onValueChange={(value) => field.onChange(parseInt(value))}
+                            onValueChange={(value) => field.onChange(parseInt(value, 10))}
                             value={String(field.value)}
                             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2"
                           >
