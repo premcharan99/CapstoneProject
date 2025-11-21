@@ -43,12 +43,16 @@ const getInitialValues = (type: QuestionnaireType) => {
   };
 };
 
-
 export default function SymptomQuestionnaire({
   onSubmit,
   isLoading,
 }: SymptomQuestionnaireProps) {
   const [questionnaireType, setQuestionnaireType] = useState<QuestionnaireType>('PHQ-9');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const questions = useMemo(() => 
     questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS,
@@ -59,6 +63,10 @@ export default function SymptomQuestionnaire({
     resolver: zodResolver(symptomQuestionnaireSchema),
     defaultValues: getInitialValues(questionnaireType),
   });
+
+  useEffect(() => {
+    form.reset(getInitialValues(questionnaireType));
+  }, [questionnaireType, form]);
 
   const handleFormSubmit = (values: z.infer<typeof symptomQuestionnaireSchema>) => {
     const questionsList = values.questionnaireType === 'PHQ-9' ? PHQ9_QUESTIONS : GAD7_QUESTIONS;
@@ -77,8 +85,11 @@ export default function SymptomQuestionnaire({
 
   const handleTypeChange = (type: QuestionnaireType) => {
     setQuestionnaireType(type);
-    form.reset(getInitialValues(type));
   };
+
+  if (!isClient) {
+    return null; // Or a loading spinner
+  }
   
   return (
     <Card className="max-w-3xl mx-auto">
