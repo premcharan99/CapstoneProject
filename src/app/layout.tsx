@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
+import NextTopLoader from 'nextjs-toploader';
 
 export const metadata: Metadata = {
   title: 'Clarity Compass',
@@ -30,6 +31,7 @@ export default function RootLayout({
           'font-body'
         )}
       >
+        <NextTopLoader color="hsl(var(--primary))" showSpinner={false} />
         <div className="relative flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">{children}</main>
