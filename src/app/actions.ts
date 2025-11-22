@@ -3,7 +3,6 @@
 import { z } from "zod";
 import { suggestBusinessModel, SuggestBusinessModelOutput } from "@/ai/flows/suggest-business-model";
 import { analyzeMentalHealth, AnalyzeMentalHealthOutput } from "@/ai/flows/analyze-mental-health";
-import { analyzeSmile, AnalyzeSmileOutput } from "@/ai/flows/analyze-smile";
 import { businessCriteriaSchema, refinedSymptomQuestionnaireSchema, symptomQuestionnaireSchema } from "@/lib/schemas";
 
 type ActionResponse<T> = {
@@ -41,20 +40,5 @@ export async function performTriage(
       return { error: "Invalid input data. " + error.message };
     }
     return { error: "An unexpected error occurred while performing triage." };
-  }
-}
-
-export async function checkSmile(
-  photoDataUri: string
-): Promise<ActionResponse<AnalyzeSmileOutput>> {
-    if (!photoDataUri) {
-        return { error: "No photo data provided." };
-    }
-  try {
-    const result = await analyzeSmile({ photoDataUri });
-    return { data: result };
-  } catch (error) {
-    console.error("Error in checkSmile:", error);
-    return { error: "An unexpected error occurred while analyzing your smile." };
   }
 }
