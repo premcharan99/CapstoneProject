@@ -35,10 +35,14 @@ const createQuestionnaireSchema = (questions: any[]) => {
 const phq9Schema = createQuestionnaireSchema(PHQ9Questions);
 const gad7Schema = createQuestionnaireSchema(GAD7Questions);
 
+// Base schema that can be extended on the server
 export const symptomQuestionnaireSchema = z.object({
   questionnaireType: z.enum(["PHQ-9", "GAD-7"]),
-  questionnaireData: z.any(),
-}).superRefine((data, ctx) => {
+  questionnaireData: z.record(z.string(), z.number()),
+});
+
+// Refined schema for client-side form validation
+export const refinedSymptomQuestionnaireSchema = symptomQuestionnaireSchema.superRefine((data, ctx) => {
   const result = data.questionnaireType === "PHQ-9"
     ? phq9Schema.safeParse(data.questionnaireData)
     : gad7Schema.safeParse(data.questionnaireData);

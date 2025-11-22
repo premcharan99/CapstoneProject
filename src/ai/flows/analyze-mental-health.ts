@@ -26,7 +26,7 @@ const AnalyzeMentalHealthOutputSchema = z.object({
   recommendations: z.array(RecommendationSchema).describe("A list of recommended therapist types and reasons."),
   nextSteps: z.array(z.string()).describe("A list of suggested next steps for the user to take."),
 });
-export type AnalyzeMentalHealthOutput = zinfer<typeof AnalyzeMentalHealthOutputSchema>;
+export type AnalyzeMentalHealthOutput = z.infer<typeof AnalyzeMentalHealthOutputSchema>;
 
 
 export async function analyzeMentalHealth(input: AnalyzeMentalHealthInput): Promise<AnalyzeMentalHealthOutput> {

@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { symptomQuestionnaireSchema } from "@/lib/schemas";
+import { refinedSymptomQuestionnaireSchema, symptomQuestionnaireSchema } from "@/lib/schemas";
 import { PHQ9Questions, GAD7Questions, AnswerOptions } from "@/lib/questionnaires";
 import { Loader2, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
@@ -54,8 +54,8 @@ export default function SymptomQuestionnaire({
     };
   }, [questions, questionnaireType]);
 
-  const form = useForm<z.infer<typeof symptomQuestionnaireSchema>>({
-    resolver: zodResolver(symptomQuestionnaireSchema),
+  const form = useForm<z.infer<typeof refinedSymptomQuestionnaireSchema>>({
+    resolver: zodResolver(refinedSymptomQuestionnaireSchema),
     defaultValues: defaultValues,
   });
 
@@ -63,7 +63,7 @@ export default function SymptomQuestionnaire({
     form.reset(defaultValues);
   }, [defaultValues, form]);
 
-  const handleFormSubmit = (values: z.infer<typeof symptomQuestionnaireSchema>) => {
+  const handleFormSubmit = (values: z.infer<typeof refinedSymptomQuestionnaireSchema>) => {
     const totalScore = Object.values(values.questionnaireData).reduce((sum, value) => sum + Number(value), 0);
     console.log("Submitting with score:", totalScore);
     onSubmit(values);

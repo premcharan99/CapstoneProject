@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { suggestBusinessModel, SuggestBusinessModelOutput } from "@/ai/flows/suggest-business-model";
 import { analyzeMentalHealth, AnalyzeMentalHealthOutput } from "@/ai/flows/analyze-mental-health";
-import { businessCriteriaSchema, symptomQuestionnaireSchema } from "@/lib/schemas";
+import { businessCriteriaSchema, refinedSymptomQuestionnaireSchema, symptomQuestionnaireSchema } from "@/lib/schemas";
 
 type ActionResponse<T> = {
   data?: T;
@@ -30,7 +30,8 @@ export async function performTriage(
   input: z.infer<typeof symptomQuestionnaireSchema>
 ): Promise<ActionResponse<AnalyzeMentalHealthOutput>> {
   try {
-    const validatedInput = symptomQuestionnaireSchema.parse(input);
+    // Note: We use the refined schema here for validation before passing to the flow.
+    const validatedInput = refinedSymptomQuestionnaireSchema.parse(input);
     const result = await analyzeMentalHealth(validatedInput);
     return { data: result };
   } catch (error) {
