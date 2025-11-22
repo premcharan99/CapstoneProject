@@ -66,12 +66,7 @@ const analyzeMentalHealthFlow = ai.defineFlow(
     // Calculate the score server-side to ensure accuracy
     const score = Object.values(input.questionnaireData).reduce((sum, value) => sum + Number(value), 0);
     
-    const { output } = await triagePrompt({
-        ...input,
-        // It's good practice to pass the definitive score to the model,
-        // even though it could calculate it itself. This ensures consistency.
-        score,
-    });
+    const { output } = await triagePrompt(input);
     
     // Ensure the server-calculated score is the one returned
     return {
