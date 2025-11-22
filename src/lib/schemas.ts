@@ -39,25 +39,16 @@ export const symptomQuestionnaireSchema = z.object({
   questionnaireType: z.enum(["PHQ-9", "GAD-7"]),
   questionnaireData: z.any(),
 }).superRefine((data, ctx) => {
-  if (data.questionnaireType === "PHQ-9") {
-    const result = phq9Schema.safeParse(data.questionnaireData);
-    if (!result.success) {
-      result.error.errors.forEach((err) => {
-        ctx.addIssue({
-          ...err,
-          path: ["questionnaireData", ...err.path],
-        });
+  const result = data.questionnaireType === "PHQ-9"
+    ? phq9Schema.safeParse(data.questionnaireData)
+    : gad7Schema.safeParse(data.questionnaireData);
+    
+  if (!result.success) {
+    result.error.errors.forEach((err) => {
+      ctx.addIssue({
+        ...err,
+        path: ["questionnaireData", ...err.path],
       });
-    }
-  } else if (data.questionnaireType === "GAD-7") {
-    const result = gad7Schema.safeParse(data.questionnaireData);
-     if (!result.success) {
-      result.error.errors.forEach((err) => {
-        ctx.addIssue({
-          ...err,
-          path: ["questionnaireData", ...err.path],
-        });
-      });
-    }
+    });
   }
 });
