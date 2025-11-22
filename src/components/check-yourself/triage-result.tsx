@@ -74,7 +74,7 @@ export default function TriageResult({
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">{data.analysis}</p>
+                    <p className="text-muted-foreground">{data.preliminaryAnalysis}</p>
                 </CardContent>
             </Card>
 
