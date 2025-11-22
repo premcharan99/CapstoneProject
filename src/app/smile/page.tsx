@@ -22,7 +22,6 @@ export default function SmilePage() {
   const analysisIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
-  // Request camera permission
   useEffect(() => {
     const getCameraPermission = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -57,7 +56,6 @@ export default function SmilePage() {
 
     getCameraPermission();
     
-    // Cleanup: stop video stream when component unmounts
     return () => {
         if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject as MediaStream;
@@ -72,7 +70,7 @@ export default function SmilePage() {
   useEffect(() => {
     if (result && result.smilingPercentage >= SMILE_THRESHOLD && !showConfetti) {
       setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 5000); // Confetti for 5 seconds
+      setTimeout(() => setShowConfetti(false), 5000);
     }
   }, [result, showConfetti]);
 
@@ -87,14 +85,9 @@ export default function SmilePage() {
     const context = canvas.getContext('2d');
 
     if (context) {
-      // Set canvas dimensions to match video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-
-      // Draw current video frame to canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Get image data from canvas
       const imageDataUri = canvas.toDataURL('image/jpeg');
 
       try {
@@ -118,9 +111,9 @@ export default function SmilePage() {
   }, [isAnalyzing, toast]);
 
   const startAnalysis = () => {
-    stopAnalysis(); // Stop any existing interval
-    analysisIntervalRef.current = setInterval(captureAndAnalyze, 2000); // Analyze every 2 seconds
-    captureAndAnalyze(); // Analyze immediately
+    stopAnalysis();
+    analysisIntervalRef.current = setInterval(captureAndAnalyze, 2000);
+    captureAndAnalyze();
   };
 
   const stopAnalysis = () => {
@@ -156,9 +149,9 @@ export default function SmilePage() {
 
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12">
+    <div className="container mx-auto max-w-7xl px-4 py-8 md:py-12">
       {showConfetti && <Confetti />}
-      <div className="space-y-4 text-center">
+      <div className="space-y-4 text-center mb-8">
         <h1 className="text-4xl font-bold tracking-tighter font-headline sm:text-5xl">
           Smile Meter
         </h1>
@@ -167,97 +160,88 @@ export default function SmilePage() {
         </p>
       </div>
 
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Camera className="text-primary" />
-            Live Camera Feed
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {hasCameraPermission === false && (
-            <Alert variant="destructive">
-              <AlertTitle>Camera Access Required</AlertTitle>
-              <AlertDescription>
-                Please allow camera access in your browser to use this feature. You may need to refresh the page after granting permission.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="relative aspect-video w-full rounded-md border bg-muted flex items-center justify-center">
-            <video
-              ref={videoRef}
-              className="h-full w-full rounded-md object-cover"
-              autoPlay
-              muted
-              playsInline
-              style={{ transform: "scaleX(-1)" }} // Mirror the video
-            />
-            <canvas ref={canvasRef} className="hidden"></canvas>
-            {hasCameraPermission === null && (
-                <div className="absolute flex items-center text-muted-foreground">
-                    <Loader2 className="mr-2 animate-spin" />
-                    Requesting camera access...
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Camera className="text-primary" />
+              Live Camera Feed
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {hasCameraPermission === false && (
+              <Alert variant="destructive">
+                <AlertTitle>Camera Access Required</AlertTitle>
+                <AlertDescription>
+                  Please allow camera access in your browser to use this feature. You may need to refresh the page after granting permission.
+                </AlertDescription>
+              </Alert>
             )}
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button onClick={startAnalysis} disabled={!hasCameraPermission || isAnalyzing && !!analysisIntervalRef.current}>
-                {isAnalyzing && !!analysisIntervalRef.current ? (
-                    <>
-                        <Loader2 className="mr-2 animate-spin" />
-                        Analyzing...
-                    </>
-                ) : (
-                    <>
-                        <Zap className="mr-2" />
-                        Start Real-time Analysis
-                    </>
-                )}
-            </Button>
-            <Button onClick={stopAnalysis} variant="secondary" disabled={!analysisIntervalRef.current}>
-                Stop Analysis
-            </Button>
-             <Button onClick={captureAndAnalyze} variant="outline" disabled={!hasCameraPermission || isAnalyzing}>
-                {isAnalyzing && !analysisIntervalRef.current ? (
-                    <>
-                        <Loader2 className="mr-2 animate-spin" />
-                        Checking...
-                    </>
-                ) : (
-                    <>
-                        <SmileIcon className="mr-2" />
-                        Check Smile Now
-                    </>
-                )}
-            </Button>
-          </div>
-          
-          {result && (
-             <Card className="mt-6 bg-muted/50">
-                <CardHeader>
-                    <CardTitle className="text-xl font-headline">Analysis Result</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                            <p className="font-semibold text-primary">Smile Percentage</p>
-                            <p className="text-2xl font-bold text-primary">{result.smilingPercentage}%</p>
+            <div className="relative aspect-video w-full rounded-md border bg-muted flex items-center justify-center">
+              <video
+                ref={videoRef}
+                className="h-full w-full rounded-md object-cover"
+                autoPlay
+                muted
+                playsInline
+                style={{ transform: "scaleX(-1)" }}
+              />
+              <canvas ref={canvasRef} className="hidden"></canvas>
+              {hasCameraPermission === null && (
+                  <div className="absolute flex items-center text-muted-foreground">
+                      <Loader2 className="mr-2 animate-spin" />
+                      Requesting camera access...
+                  </div>
+              )}
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button onClick={startAnalysis} disabled={!hasCameraPermission || isAnalyzing && !!analysisIntervalRef.current}>
+                  {isAnalyzing && !!analysisIntervalRef.current ? ( <> <Loader2 className="mr-2 animate-spin" /> Analyzing... </> ) : ( <> <Zap className="mr-2" /> Start Real-time </> )}
+              </Button>
+              <Button onClick={stopAnalysis} variant="secondary" disabled={!analysisIntervalRef.current}>
+                  Stop
+              </Button>
+              <Button onClick={captureAndAnalyze} variant="outline" disabled={!hasCameraPermission || isAnalyzing}>
+                  {isAnalyzing && !analysisIntervalRef.current ? ( <> <Loader2 className="mr-2 animate-spin" /> Checking... </> ) : ( <> <SmileIcon className="mr-2" /> Check Smile </> )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <div className="space-y-8">
+            {result ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl font-headline">Analysis Result</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <p className="font-semibold text-primary">Smile Percentage</p>
+                                <p className="text-2xl font-bold text-primary">{result.smilingPercentage}%</p>
+                            </div>
+                            <Progress value={result.smilingPercentage} className="w-full" />
                         </div>
-                        <Progress value={result.smilingPercentage} className="w-full" />
-                    </div>
-                     <Alert>
-                        <SmileIcon className="h-4 w-4" />
-                        <AlertTitle>AI Encouragement</AlertTitle>
-                        <AlertDescription>{result.reason}</AlertDescription>
-                    </Alert>
-                </CardContent>
-             </Card>
-          )}
-
-        </CardContent>
-      </Card>
+                        <Alert>
+                            <SmileIcon className="h-4 w-4" />
+                            <AlertTitle>AI Encouragement</AlertTitle>
+                            <AlertDescription>{result.reason}</AlertDescription>
+                        </Alert>
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card className="flex flex-col items-center justify-center text-center p-8 h-full">
+                    <CardHeader>
+                        <CardTitle>Awaiting Analysis</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Your smile analysis will appear here once you start the check.</p>
+                        <SmileIcon className="w-16 h-16 text-muted-foreground/50 mx-auto mt-4" />
+                    </CardContent>
+                </Card>
+            )}
+        </div>
+      </div>
     </div>
   );
 }

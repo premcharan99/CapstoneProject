@@ -41,6 +41,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeSmilePrompt',
   input: { schema: AnalyzeSmileInputSchema },
   output: { schema: AnalyzeSmileOutputSchema },
+  model: 'googleai/gemini-pro-vision', // Specify the vision model
   prompt: `You are a fun, friendly, and encouraging AI that can detect smiles.
 Your task is to analyze the provided image of a person's face and determine how much they are smiling.
 
