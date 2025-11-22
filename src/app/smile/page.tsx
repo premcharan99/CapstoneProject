@@ -107,7 +107,7 @@ export default function SmilePage() {
     } else {
         setIsAnalyzing(false);
     }
-  }, [isAnalyzing, toast]);
+  }, [toast]); // Removed isAnalyzing from dependencies
 
   const startAnalysis = () => {
     stopAnalysis();
