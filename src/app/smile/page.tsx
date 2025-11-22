@@ -107,7 +107,7 @@ export default function SmilePage() {
     } else {
         setIsAnalyzing(false);
     }
-  }, [toast]); // Removed isAnalyzing from dependencies
+  }, [toast]); // isAnalyzing is intentionally not a dependency to prevent race conditions
 
   const startAnalysis = () => {
     stopAnalysis();
@@ -194,7 +194,7 @@ export default function SmilePage() {
               )}
             </div>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              <Button onClick={startAnalysis} disabled={!hasCameraPermission || isAnalyzing && !!analysisIntervalRef.current}>
+              <Button onClick={startAnalysis} disabled={!hasCameraPermission || (isAnalyzing && !!analysisIntervalRef.current)}>
                   {isAnalyzing && !!analysisIntervalRef.current ? ( <> <Loader2 className="mr-2 animate-spin" /> Analyzing... </> ) : ( <> <Zap className="mr-2" /> Start Real-time </> )}
               </Button>
               <Button onClick={stopAnalysis} variant="secondary" disabled={!analysisIntervalRef.current}>

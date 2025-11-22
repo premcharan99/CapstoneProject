@@ -41,12 +41,11 @@ const prompt = ai.definePrompt({
   name: 'analyzeSmilePrompt',
   input: { schema: AnalyzeSmileInputSchema },
   output: { schema: AnalyzeSmileOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are an expert in facial expression analysis. Your task is to analyze the provided image and determine the percentage of how much the person is smiling, from 0 to 100.
 
 - A score of 0 means absolutely no smile, a neutral or sad expression.
 - A score of 100 means a huge, beaming, toothy smile.
-- If no human face is clearly visible, return a smilingPercentage of 0 and a reason like "I can't seem to find a face to analyze!".
+- If no human face is clearly visible, you MUST return a smilingPercentage of 0 and a reason like "I can't seem to find a face to analyze!".
 - Provide a fun, encouraging, one-sentence comment about the determined smile percentage.
 
 Analyze the image and return ONLY the JSON object in the specified format.
@@ -61,7 +60,7 @@ const analyzeSmileFlow = ai.defineFlow(
     outputSchema: AnalyzeSmileOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
+    const { output } = await prompt(input, { model: 'googleai/gemini-1.5-flash-latest' });
     return output!;
   }
 );
