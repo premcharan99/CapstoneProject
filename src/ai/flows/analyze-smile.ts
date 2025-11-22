@@ -41,16 +41,15 @@ const prompt = ai.definePrompt({
   name: 'analyzeSmilePrompt',
   input: { schema: AnalyzeSmileInputSchema },
   output: { schema: AnalyzeSmileOutputSchema },
-  model: 'googleai/gemini-pro-vision', // Specify the vision model
-  prompt: `You are a fun, friendly, and encouraging AI that can detect smiles.
-Your task is to analyze the provided image of a person's face and determine how much they are smiling.
+  model: 'googleai/gemini-1.5-flash-latest', // Use a powerful and recent multimodal model
+  prompt: `You are an expert in facial expression analysis. Your task is to analyze the provided image and determine the percentage of how much the person is smiling, from 0 to 100.
 
-- If no face is visible in the image, return a smilingPercentage of 0 and a reason like "I can't see your lovely face!".
-- If a face is visible but not smiling, return a low percentage (0-10) and an encouraging reason like "A little smile can brighten the day!".
-- If the person has a small or subtle smile, return a moderate percentage (20-60).
-- If the person has a big, obvious, toothy grin, return a high percentage (70-100).
+- A score of 0 means absolutely no smile, a neutral or sad expression.
+- A score of 100 means a huge, beaming, toothy smile.
+- If no human face is clearly visible, return a smilingPercentage of 0 and a reason like "I can't seem to find a face to analyze!".
+- Provide a fun, encouraging, one-sentence comment about the determined smile percentage.
 
-Be consistent in your scoring. Return your analysis in the specified JSON format.
+Analyze the image and return ONLY the JSON object in the specified format.
 
 Photo: {{media url=photoDataUri}}`,
 });

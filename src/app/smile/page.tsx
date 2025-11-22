@@ -99,8 +99,7 @@ export default function SmilePage() {
         toast({
           variant: 'destructive',
           title: 'Analysis Failed',
-          description:
-            error instanceof Error ? error.message : 'Could not analyze smile.',
+          description: error instanceof Error ? error.message : 'The AI model could not analyze the image. Please try again.',
         });
       } finally {
         setIsAnalyzing(false);
