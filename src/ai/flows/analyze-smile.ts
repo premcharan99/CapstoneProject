@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeSmilePrompt',
   input: { schema: AnalyzeSmileInputSchema },
   output: { schema: AnalyzeSmileOutputSchema },
-  model: 'googleai/gemini-1.5-flash-latest', // Use a powerful and recent multimodal model
+  model: 'googleai/gemini-1.5-flash-latest',
   prompt: `You are an expert in facial expression analysis. Your task is to analyze the provided image and determine the percentage of how much the person is smiling, from 0 to 100.
 
 - A score of 0 means absolutely no smile, a neutral or sad expression.
