@@ -2,7 +2,8 @@
 
 import { z } from "zod";
 import { suggestBusinessModel, SuggestBusinessModelOutput } from "@/ai/flows/suggest-business-model";
-import { businessCriteriaSchema } from "@/lib/schemas";
+import { analyzeMentalHealth, AnalyzeMentalHealthOutput } from "@/ai/flows/analyze-mental-health";
+import { businessCriteriaSchema, symptomQuestionnaireSchema } from "@/lib/schemas";
 
 type ActionResponse<T> = {
   data?: T;
@@ -22,5 +23,21 @@ export async function generateBusinessModel(
       return { error: "Invalid input data. " + error.message };
     }
     return { error: "An unexpected error occurred while generating the business model." };
+  }
+}
+
+export async function performTriage(
+  input: z.infer<typeof symptomQuestionnaireSchema>
+): Promise<ActionResponse<AnalyzeMentalHealthOutput>> {
+  try {
+    const validatedInput = symptomQuestionnaireSchema.parse(input);
+    const result = await analyzeMentalHealth(validatedInput);
+    return { data: result };
+  } catch (error) {
+    console.error("Error in performTriage:", error);
+    if (error instanceof z.ZodError) {
+      return { error: "Invalid input data. " + error.message };
+    }
+    return { error: "An unexpected error occurred while performing triage." };
   }
 }

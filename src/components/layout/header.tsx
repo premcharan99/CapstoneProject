@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Business Model" },
+  { href: "/check-yourself", label: "Check Yourself" },
 ];
 
 export default function Header() {

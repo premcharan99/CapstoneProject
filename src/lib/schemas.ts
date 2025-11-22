@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PHQ9Questions, GAD7Questions } from "@/lib/questionnaires";
 
 export const businessCriteriaSchema = z.object({
   serviceType: z.string().min(1, "Service type is required."),
@@ -22,3 +23,41 @@ export const businessCriteriaSchema = z.object({
 });
 
 export type BusinessCriteria = z.infer<typeof businessCriteriaSchema>;
+
+const createQuestionnaireSchema = (questions: any[]) => {
+  const schemaShape = questions.reduce((acc, question) => {
+    acc[question.id] = z.number({ required_error: "Please select an option." }).min(0).max(3);
+    return acc;
+  }, {} as Record<string, z.ZodNumber>);
+  return z.object(schemaShape);
+};
+
+const phq9Schema = createQuestionnaireSchema(PHQ9Questions);
+const gad7Schema = createQuestionnaireSchema(GAD7Questions);
+
+export const symptomQuestionnaireSchema = z.object({
+  questionnaireType: z.enum(["PHQ-9", "GAD-7"]),
+  questionnaireData: z.any(),
+}).superRefine((data, ctx) => {
+  if (data.questionnaireType === "PHQ-9") {
+    const result = phq9Schema.safeParse(data.questionnaireData);
+    if (!result.success) {
+      result.error.errors.forEach((err) => {
+        ctx.addIssue({
+          ...err,
+          path: ["questionnaireData", ...err.path],
+        });
+      });
+    }
+  } else if (data.questionnaireType === "GAD-7") {
+    const result = gad7Schema.safeParse(data.questionnaireData);
+     if (!result.success) {
+      result.error.errors.forEach((err) => {
+        ctx.addIssue({
+          ...err,
+          path: ["questionnaireData", ...err.path],
+        });
+      });
+    }
+  }
+});
